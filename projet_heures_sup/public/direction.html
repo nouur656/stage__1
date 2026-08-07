@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Direction Provinciale — Tableau de Bord</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1B4F8A;
+      --navy-dark: #143D6B;
+      --navy-light: #EEF4FC;
+      --green: #0D5C2E;
+      --green-light: #E8F7EF;
+      --gold: #C8992A;
+      --bg: #F0F4F9;
+      --white: #FFFFFF;
+      --text: #1A2340;
+      --muted: #6B7A99;
+      --border: #D1DCF0;
+      --error: #D94040;
+      --success: #16a34a;
+      --radius: 14px;
+      --shadow: 0 4px 24px rgba(27,79,138,0.10);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: linear-gradient(135deg, var(--green), #0A4723);
+      color: white;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      box-shadow: 0 2px 12px rgba(13,92,46,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .navbar-icon { font-size: 1.5rem; }
+    .navbar-text h3 { font-size: 0.95rem; font-weight: 700; line-height: 1.2; }
+    .navbar-text p { font-size: 0.72rem; opacity: 0.8; }
+    .admin-badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .btn-logout {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 7px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.22); }
+    .navbar-right { display: flex; align-items: center; gap: 12px; }
+
+    /* ── Main ── */
+    .main-wrap { max-width: 1500px; margin: 0 auto; padding: 24px 20px; }
+
+    /* ── KPI Grid ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .kpi-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .kpi-icon.blue { background: var(--navy-light); }
+    .kpi-icon.green { background: var(--green-light); }
+    .kpi-icon.gold { background: #FEF9ED; }
+    .kpi-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+    .kpi-lbl { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+
+    /* ── Cards ── */
+    .card {
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 20px;
+      box-shadow: 0px 12px 32px rgba(15, 34, 58, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .card-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(27, 79, 138, 0.1);
+      background: rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-header h2 { font-size: 0.95rem; font-weight: 700; color: var(--navy); }
+    .card-body { padding: 20px; }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    label { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    select, input {
+      padding: 9px 12px;
+      border: 2px solid var(--border);
+      border-radius: 9px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text);
+      outline: none;
+      background: #FAFCFF;
+      transition: border-color 0.2s;
+    }
+    select:focus, input:focus {
+      border-color: var(--navy);
+    }
+    .btn-filter {
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: 2px solid var(--navy);
+      background: white;
+      color: var(--navy);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-filter:hover { background: var(--navy); color: white; }
+    .btn-filter.active { background: var(--navy); color: white; }
+    .btn-reset {
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+    }
+    .btn-reset:hover { background: #F0F4F9; }
+    .btn-vider {
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px solid #D94040;
+      background: #FFF0F0;
+      color: #D94040;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .btn-vider:hover { background: #D94040; color: white; }
+    .btn-export-group {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-export {
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: none;
+      background: var(--green);
+      color: white;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-export:hover { background: #0A4723; }
+    .btn-export-blue {
+      background: var(--navy);
+    }
+    .btn-export-blue:hover { background: var(--navy-dark); }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    
+    /* ── Table Improvements ── */
+    thead th {
+      background: rgba(27, 79, 138, 0.95);
+      backdrop-filter: blur(6px);
+      color: white;
+      padding: 12px 6px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: none;
+    }
+    
+    .th-fin { background: #2A4560 !important; color: #E7EEF8 !important; border-bottom: 2px solid #5DA271; }
+    .col-fin { background: #FAFBFC; }
+    
+    .truncate-rib {
+      max-width: 90px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: middle;
+      font-family: monospace;
+    }
+    .truncate-grade {
+      max-width: 110px;
+      display: -webkit-box;
+      line-clamp: 2;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      white-space: normal;
+      font-size: 0.7rem;
+    }
+    .truncate-nom {
+      max-width: 130px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: middle;
+      font-weight: 600;
+    }
+
+    @media (max-width: 1100px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+      thead { display: none; }
+      tr {
+        margin-bottom: 16px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 6px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+      }
+      td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f4f9;
+        padding: 8px 10px;
+        text-align: right !important;
+        font-size: 0.85rem;
+      }
+      td:last-child {
+        border-bottom: none;
+        justify-content: center;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-top: 5px;
+      }
+      td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--muted);
+        font-size: 0.75rem;
+        text-align: left;
+        margin-right: 12px;
+        text-transform: uppercase;
+      }
+      .col-fin { background: transparent; }
+      .truncate-rib, .truncate-grade, .truncate-nom {
+        max-width: none;
+        white-space: normal;
+        display: block;
+      }
+    }
+
+    thead th.th-green { background: var(--green); }
+    tbody td {
+      padding: 9px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      vertical-align: middle;
+    }
+    tbody tr:nth-child(even) td { background: #F7FAFF; }
+    tbody tr:hover td { background: var(--navy-light); transition: background 0.15s; }
+
+    .cycle-badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .cycle-badge.PRIMAIRE { background: #E8F0FE; color: #1B4F8A; }
+    .cycle-badge.COLLEGE  { background: #FEF9ED; color: #92600A; }
+    .cycle-badge.LYCEE    { background: #E8F7EF; color: #0D5C2E; }
+
+    .badge-validated {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-validated.yes { background: var(--green-light); color: var(--green); }
+    .badge-validated.no { background: #FEF3CD; color: #92600A; }
+
+    .btn-valider {
+      background: rgba(232, 247, 239, 0.6);
+      border: 1px solid #B7DFC9;
+      border-radius: 6px;
+      color: #0D5C2E;
+      cursor: pointer;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap;
+    }
+    .btn-valider:hover { background: #0D5C2E; color: white; transform: scale(1.05); }
+
+    .btn-invalider {
+      background: rgba(254, 243, 243, 0.6);
+      border: 1px solid #F0CECE;
+      border-radius: 6px;
+      color: #D32F2F;
+      cursor: pointer;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .btn-invalider:hover { background: #D32F2F; color: white; transform: scale(1.05); }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    .table-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: #F5F8FE;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .table-footer strong { color: var(--navy); }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      z-index: 999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      max-width: 360px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--success); color: white; }
+    .toast.error { background: var(--error); color: white; }
+
+    .loading-spinner-inline {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(27,79,138,0.2);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .search-input {
+      padding: 9px 12px;
+      border: 2px solid var(--border);
+      border-radius: 9px;
+      min-width: 200px;
+    }
+  
+    /* GID Settings Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: #fff; border-radius: 12px;
+      padding: 24px; width: 400px; max-width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h3 { margin: 0; font-size: 1.2rem; color: var(--navy); }
+    .modal-close { cursor: pointer; border: none; background: none; font-size: 1.2rem; color: var(--muted); }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: var(--navy); }
+    .form-group input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-outline { padding: 8px 16px; border: 1px solid var(--border); background: #fff; border-radius: 6px; cursor: pointer; }
+    .btn-save { padding: 8px 16px; background: var(--green); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    
+    .btn-export-purple { background: #8e44ad; color: #fff; border: none; }
+    .btn-export-purple:hover { background: #732d91; }
+    .btn-settings { background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; padding: 6px 10px; font-size: 1.1rem; }
+    .btn-settings:hover { background: var(--hover); }
+
+  
+    /* GID Settings Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: #fff; border-radius: 12px;
+      padding: 24px; width: 400px; max-width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h3 { margin: 0; font-size: 1.2rem; color: var(--navy); }
+    .modal-close { cursor: pointer; border: none; background: none; font-size: 1.2rem; color: var(--muted); }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: var(--navy); }
+    .form-group input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-outline { padding: 8px 16px; border: 1px solid var(--border); background: #fff; border-radius: 6px; cursor: pointer; }
+    .btn-save { padding: 8px 16px; background: var(--green); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    
+    .btn-export-purple { background: #8e44ad; color: #fff; border: none; }
+    .btn-export-purple:hover { background: #732d91; }
+    .btn-settings { background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; padding: 6px 10px; font-size: 1.1rem; }
+    .btn-settings:hover { background: var(--hover); }
+
+  
+    /* Dropdowns */
+    .nav-dropdown { position: relative; display: inline-block; }
+    .nav-dropdown-btn {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3);
+      color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .nav-dropdown-btn:hover { background: rgba(255,255,255,0.22); }
+    .nav-dropdown-content {
+      display: none; position: absolute; top: calc(100% + 8px); left: 0;
+      background-color: var(--white); min-width: 220px;
+      box-shadow: 0 8px 24px rgba(27,79,138,0.15); border-radius: 12px;
+      z-index: 101; padding: 8px; flex-direction: column; gap: 4px; border: 1px solid var(--border);
+    }
+    .nav-dropdown-content.show { display: flex; animation: fadeInDown 0.2s ease-out forwards; }
+    .nav-dropdown.right .nav-dropdown-content { left: auto; right: 0; }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .nav-dropdown-item {
+      background: none; border: none; width: 100%; text-align: left;
+      padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;
+      font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 8px; transition: background 0.2s;
+    }
+    .nav-dropdown-item:hover { background: var(--bg); color: var(--navy); }
+    .nav-dropdown-item.active { background: var(--navy-light); color: var(--navy); font-weight: 600; border-left: 3px solid var(--navy); }
+    .historique-table-container { margin-bottom: 30px; background:white; border-radius:12px; border:1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.03); overflow:hidden;}
+    .historique-table-header { background: #f8fafc; padding:12px 20px; border-bottom:1px solid var(--border); font-weight:700; color:var(--navy); font-size:1.05rem; display:flex; justify-content:space-between; align-items:center; }
+    .historique-table-header span { font-size: 0.85rem; color: var(--muted); font-weight: normal; }
+    .filter-group { display: flex; flex-direction: column; gap:4px; margin-right: 15px;}
+
+    /* ── Purge Modal ── */
+    .purge-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(10,20,40,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      align-items: center; justify-content: center;
+    }
+    .purge-overlay.active { display: flex; }
+    .purge-modal {
+      background: #fff; border-radius: 16px;
+      width: 480px; max-width: 92vw;
+      box-shadow: 0 20px 60px rgba(15,25,50,0.25);
+      overflow: hidden;
+      transform: scale(0.96); opacity: 0;
+      animation: purgeIn 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    @keyframes purgeIn { to { transform: scale(1); opacity: 1; } }
+    .purge-head {
+      background: linear-gradient(135deg, #D94040, #a02020);
+      color: white; padding: 20px 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .purge-head h3 { font-size: 1rem; font-weight: 700; }
+    .purge-head p { font-size: 0.78rem; opacity: 0.85; margin-top: 2px; }
+    .purge-body { padding: 24px; }
+    .purge-option {
+      border: 2px solid var(--border); border-radius: 12px;
+      padding: 16px; margin-bottom: 12px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .purge-option:hover { border-color: var(--navy); background: #fafbff; }
+    .purge-option.selected { border-color: #D94040; background: #FFF5F5; }
+    .purge-option input[type=radio] { margin-right: 10px; accent-color: #D94040; }
+    .purge-option label { cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--text); }
+    .purge-option .purge-desc { font-size: 0.78rem; color: var(--muted); margin-top: 4px; margin-left: 24px; }
+    .purge-month-select {
+      margin-top: 10px; margin-left: 24px;
+      display: none;
+    }
+    .purge-option.selected .purge-month-select { display: flex; gap: 10px; }
+    .purge-month-select select {
+      padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 0.85rem; font-family: inherit; outline: none; background: #fff;
+    }
+    .purge-month-select select:focus { border-color: var(--navy); }
+    .purge-warning {
+      background: #FFF8E1; border: 1px solid #FFD54F; border-radius: 10px;
+      padding: 12px 16px; margin-top: 16px;
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.82rem; color: #7A5D00;
+    }
+    .purge-warning .warn-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .purge-confirm-check {
+      margin-top: 16px; display: flex; align-items: center; gap: 10px;
+      font-size: 0.82rem; font-weight: 500; color: var(--text);
+    }
+    .purge-confirm-check input[type=checkbox] { width: 18px; height: 18px; accent-color: #D94040; cursor: pointer; }
+    .purge-footer {
+      padding: 16px 24px 20px; display: flex; justify-content: flex-end; gap: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-purge-cancel {
+      padding: 10px 20px; background: #fff; border: 1.5px solid var(--border);
+      border-radius: 9px; cursor: pointer; font-size: 0.88rem; font-family: inherit; color: var(--muted); transition: all 0.2s;
+    }
+    .btn-purge-cancel:hover { background: #f0f4f9; color: var(--text); }
+    .btn-purge-confirm {
+      padding: 10px 20px; background: #D94040; color: white; border: none;
+      border-radius: 9px; cursor: pointer; font-size: 0.88rem; font-weight: 700; font-family: inherit;
+      transition: all 0.2s; opacity: 0.4; pointer-events: none;
+    }
+    .btn-purge-confirm.enabled { opacity: 1; pointer-events: auto; }
+    .btn-purge-confirm.enabled:hover { background: #b82020; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(217,64,64,0.3); }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span class="navbar-icon">🏛️</span>
+    <div class="navbar-text">
+      <h3>Direction Provinciale Tanger-Assilah</h3>
+      <p>Tableau de bord — Heures Supplémentaires & Vacations 2026</p>
+    </div>
+  </div>
+  
+  <div class="navbar-actions" style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+    
+    <!-- Menu Navigation -->
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-btn" onclick="toggleDropdown('dropdown-nav', event)">
+        🗺️ Navigation <span style="font-size:0.65rem; margin-left:4px; opacity: 0.8;">▼</span>
+      </button>
+      <div id="dropdown-nav" class="nav-dropdown-content">
+        <button id="tab-saisie" class="nav-dropdown-item active" onclick="switchPage('saisie')">📊 Consolidation actuelle</button>
+        <button id="tab-historique" class="nav-dropdown-item" onclick="switchPage('historique')">📚 Historique global</button>
+      </div>
+    </div>
+
+    <!-- Menu Administration -->
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-btn" onclick="toggleDropdown('dropdown-admin', event)">
+        ⚙️ Administration <span style="font-size:0.65rem; margin-left:4px; opacity: 0.8;">▼</span>
+      </button>
+      <div id="dropdown-admin" class="nav-dropdown-content">
+        <div class="nav-dropdown-item" style="cursor: default; background: var(--bg); font-size: 0.75rem; color: var(--navy); justify-content: center; border-radius: 6px;">🔐 Rôle: Administrateur</div>
+        <button id="tab-security" class="nav-dropdown-item" onclick="switchPage('security')">🛡️ Sécurité</button>
+      </div>
+    </div>
+
+    <!-- Menu Paramètres -->
+    <div class="nav-dropdown right">
+      <button class="nav-dropdown-btn" onclick="toggleDropdown('dropdown-settings', event)">
+        🛠️ Paramètres <span style="font-size:0.65rem; margin-left:4px; opacity: 0.8;">▼</span>
+      </button>
+      <div id="dropdown-settings" class="nav-dropdown-content">
+        <div style="padding: 10px 12px; border-bottom: 1px solid var(--border);">
+          <label style="font-size: 0.75rem; color: var(--muted); display: block; margin-bottom: 6px; font-weight: 600;">Langue d'affichage</label>
+          <select id="lang-selector" onchange="switchLang(this.value)" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); outline: none; background: #fff; font-family: Inter, sans-serif; font-size: 0.85rem; font-weight: 500;">
+            <option value="fr">🇫🇷 Français</option>
+            <option value="ar">🇲🇦 العربية</option>
+          </select>
+        </div>
+        <button class="nav-dropdown-item" onclick="ouvrirModalePurge()" style="color: var(--error); margin-top: 4px; font-weight: 600;">🗑️ Vider la base</button>
+        <button class="nav-dropdown-item" onclick="logout()" style="color: var(--error); font-weight: 600;">🚪 Déconnexion</button>
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+<div id="page-saisie" style="display:block;">
+<div class="main-wrap">
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon blue">📋</div>
+      <div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-lbl">Total saisies</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon blue">🏫</div>
+      <div><div class="kpi-val" id="kpi-etab">—</div><div class="kpi-lbl">Établissements</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon gold">💰</div>
+      <div><div class="kpi-val" id="kpi-brut">—</div><div class="kpi-lbl">Total Brut (DH)</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon green">✅</div>
+      <div><div class="kpi-val" id="kpi-net">—</div><div class="kpi-lbl">Total Net (DH)</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon green">🔖</div>
+      <div><div class="kpi-val" id="kpi-validees">—</div><div class="kpi-lbl">Saisies validées</div></div>
+    </div>
+  </div>
+
+  <!-- Main Table -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-left">
+        <span style="font-size:1rem">📊</span>
+        <h2>Consolidation de toutes les saisies</h2>
+      </div>
+      <div class="btn-export-group">
+        <button class="btn-export btn-export-blue" onclick="exportExcel()">⬇ Exporter Excel</button>
+        <button class="btn-export btn-export-purple" style="margin-left:8px;" onclick="exportGID()">⬇ Format GID</button>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <!-- Filters -->
+      <div class="filter-bar" style="margin-bottom:16px;">
+        <div>
+          <label style="display:block; margin-bottom:4px;">Mois</label>
+          <select id="f-mois">
+            <option value="">Tous les mois</option>
+            <option>Janvier 2026</option>
+            <option>Février 2026</option>
+            <option>Mars 2026</option>
+            <option>Avril 2026</option>
+            <option>Mai 2026</option>
+            <option>Juin 2026</option>
+            <option>Juillet 2026</option>
+            <option>Août 2026</option>
+            <option>Septembre 2026</option>
+            <option>Octobre 2026</option>
+            <option>Novembre 2026</option>
+            <option>Décembre 2026</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; margin-bottom:4px;">Cycle</label>
+          <select id="f-cycle">
+            <option value="">Tous les cycles</option>
+            <option value="PRIMAIRE">Primaire</option>
+            <option value="COLLEGE">Collège</option>
+            <option value="LYCEE">Lycée</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; margin-bottom:4px;">Établissement</label>
+          <select id="f-etab" style="min-width:220px;">
+            <option value="">Tous les établissements</option>
+          </select>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:8px;">
+          <button class="btn-filter" onclick="chargerSaisies()">🔍 Filtrer</button>
+          <button class="btn-reset" onclick="resetFiltres()">✕ Réinitialiser</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 30px;">N°</th>
+              <th style="width: 60px;">Cycle</th>
+              <th style="width: 160px;">Établissement</th>
+              <th style="width: 80px;">Mois</th>
+              <th style="width: 140px;">Nom & Prénom</th>
+              <th style="width: 120px;">Grade</th>
+              <th>S.O.M</th>
+              <th>Nbre H</th>
+              <th>Taux</th>
+              <th class="th-fin">Montant Brut</th>
+              <th class="th-fin">Taux IR</th>
+              <th class="th-fin">Prélèv. IR</th>
+              <th class="th-fin">Montant Net</th>
+              <th style="width: 110px;">Affectation</th>
+              <th>C.I.N</th>
+              <th style="width: 100px;">RIB</th>
+              <th style="width: 70px;">Statut</th>
+              <th style="width: 100px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="main-tbody">
+            <tr>
+              <td colspan="18">
+                <div class="empty-state">
+                  <div class="icon">⏳</div>
+                  <p>Chargement des données…</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="table-footer"></div>
+    </div>
+  </div>
+
+  
+
+</div>
+
+</div>
+
+  <!-- ── PAGE HISTORIQUE ── -->
+  <div id="page-historique" style="display:none; padding:20px; max-width:1400px; margin:0 auto;">
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <div class="card-header-left">
+          <span class="icon">🔍</span>
+          <h2>Filtres d'historique (Toutes écoles)</h2>
+        </div>
+        <div>
+          <button class="btn-export" style="background:#f0f4f9; color:var(--navy); border:1px solid var(--border);" onclick="resetHistFilters()">🔄 Réinitialiser</button>
+        </div>
+      </div>
+      <div class="card-body" style="display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end;">
+        <div class="filter-group">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--navy);">Année</label>
+          <select id="hist-annee" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; outline:none; background:#f8fafc;" onchange="loadHistoriquePage()">
+            <option value="">Toutes les années</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--navy);">Mois visé (Les heures travaillées)</label>
+          <select id="hist-mois" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; outline:none; background:#f8fafc;" onchange="loadHistoriquePage()">
+            <option value="">Tous les mois</option>
+            <option value="Janvier">Janvier</option>
+            <option value="Février">Février</option>
+            <option value="Mars">Mars</option>
+            <option value="Avril">Avril</option>
+            <option value="Mai">Mai</option>
+            <option value="Juin">Juin</option>
+            <option value="Juillet">Juillet</option>
+            <option value="Août">Août</option>
+            <option value="Septembre">Septembre</option>
+            <option value="Octobre">Octobre</option>
+            <option value="Novembre">Novembre</option>
+            <option value="Décembre">Décembre</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--navy);">Date de saisie (Date d'enregistrement)</label>
+          <input type="date" id="hist-date" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; outline:none; background:#f8fafc;" onchange="loadHistoriquePage()" title="Trouver les saisies effectuées exactement à cette date" />
+        </div>
+      </div>
+    </div>
+
+    <div id="historique-tables-container">
+      <div class="empty-state"><p>Chargement...</p></div>
+    </div>
+  </div>
+
+  <!-- ── PAGE SECURITE ── -->
+  <div id="page-security" style="display:none; padding:20px; max-width:800px; margin:0 auto;">
+    <div class="card">
+      <div class="card-header">
+         <h2>Changer le mot de passe d'un établissement</h2>
+      </div>
+      <div class="card-body">
+         <div style="display:flex; gap:12px; margin-bottom:15px; flex-wrap:wrap;">
+            <div class="filter-group">
+              <label>Code GRESA (ex: 12345X)</label>
+              <input type="text" id="sec-gresa" placeholder="ex: 12345X" style="width: 250px;" />
+            </div>
+            <div class="filter-group">
+              <label>Nouveau mot de passe</label>
+              <input type="text" id="sec-password" placeholder="Saisir ou générer" style="width: 250px;" />
+            </div>
+            <div class="filter-group" style="justify-content:flex-end;">
+              <button class="btn-save" onclick="generateRandomPassword()" type="button" style="background:var(--navy); margin-bottom:4px; margin-top:21px;">Générer aléatoire</button>
+            </div>
+         </div>
+         <button class="btn-save" onclick="changeEtabPassword()" type="button">Enregistrer le mot de passe</button>
+         <div style="margin-top:20px; font-size:0.85rem; color:var(--muted);">
+           ⚠️ Attention: L'ancien mot de passe ne fonctionnera plus après modification. Le nouveau mot de passe haché (bcrypt) sera sauvegardé dans la base pour l'établissement cible.
+         </div>
+      </div>
+    </div>
+  </div>
+  
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const fmt = n => Number(n).toLocaleString('fr-MA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  let allRows = [];
+
+  // Dropdown Logic
+  function toggleDropdown(id, event) {
+    if (event) event.stopPropagation();
+    const dropdown = document.getElementById(id);
+    const wasShown = dropdown.classList.contains('show');
+    
+    // Close all dropdowns
+    document.querySelectorAll('.nav-dropdown-content').forEach(el => el.classList.remove('show'));
+    
+    // Toggle current
+    if (!wasShown) {
+      dropdown.classList.add('show');
+    }
+  }
+
+  window.addEventListener('click', () => {
+    document.querySelectorAll('.nav-dropdown-content').forEach(el => el.classList.remove('show'));
+  });
+
+  function isActiveFilter(value) {
+    if (value == null) return false;
+    const v = String(value).trim();
+    if (!v) return false;
+    const lower = v.toLowerCase();
+    if (lower === 'tous' || lower === 'all') return false;
+    if (lower.startsWith('tous les') || lower.startsWith('toutes les')) return false;
+    return true;
+  }
+
+  // ── Pages ─────────────────────────────────────────────────────────────────
+  function switchPage(page) {
+    document.getElementById('page-saisie').style.display = (page === 'saisie') ? 'block' : 'none';
+    document.getElementById('page-historique').style.display = (page === 'historique') ? 'block' : 'none';
+    document.getElementById('page-security').style.display = (page === 'security') ? 'block' : 'none';
+    
+    document.getElementById('tab-saisie').classList.toggle('active', page === 'saisie');
+    document.getElementById('tab-historique').classList.toggle('active', page === 'historique');
+    document.getElementById('tab-security').classList.toggle('active', page === 'security');
+    
+    if (page === 'historique') loadHistoriquePage();
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  async function init() {
+    const res = await fetch('/api/me');
+    if (!res.ok) { window.location.href = '/'; return; }
+    const user = await res.json();
+    if (user.role !== 'direction') { window.location.href = '/'; return; }
+
+    await Promise.all([loadStats(), loadEtabOptions(), chargerSaisies()]);
+  }
+
+  // ── Stats (KPI) ───────────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const res = await fetch('/api/direction/stats');
+      const d = await res.json();
+      document.getElementById('kpi-total').textContent = d.total_saisies || 0;
+      document.getElementById('kpi-etab').textContent = d.total_etab || 0;
+      document.getElementById('kpi-brut').textContent = fmt(d.total_brut || 0);
+      document.getElementById('kpi-net').textContent = fmt(d.total_net || 0);
+      document.getElementById('kpi-validees').textContent = d.total_validees || 0;
+    } catch {}
+  }
+
+  // ── Etablissement options ──────────────────────────────────────────────────
+  async function loadEtabOptions() {
+    try {
+      const res = await fetch('/api/direction/etablissements');
+      const etabs = await res.json();
+      const sel = document.getElementById('f-etab');
+      etabs.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.code;
+        opt.textContent = `[${e.cycle}] ${e.nom}`;
+        sel.appendChild(opt);
+      });
+    } catch {}
+  }
+
+  let currentFilters = { mois: '', cycle: '', etab: '', etabName: '' };
+
+  // ── Load all saisies ──────────────────────────────────────────────────────
+  async function chargerSaisies() {
+    const mois = document.getElementById('f-mois').value;
+    const cycle = document.getElementById('f-cycle').value;
+    const etab = document.getElementById('f-etab').value;
+    
+    const etabSelect = document.getElementById('f-etab');
+    const etabName = etab ? etabSelect.options[etabSelect.selectedIndex]?.text.replace(/\[.*?\]\s*/, '') : '';
+    
+    currentFilters = { mois, cycle, etab, etabName };
+
+    const tbody = document.getElementById('main-tbody');
+
+    tbody.innerHTML = `<tr><td colspan="18" style="text-align:center;padding:30px;color:var(--muted)"><span class="loading-spinner-inline"></span> Chargement…</td></tr>`;
+
+    const params = new URLSearchParams();
+    if (isActiveFilter(mois)) params.set('mois', mois.trim());
+    if (isActiveFilter(cycle)) params.set('cycle', cycle.trim());
+    if (isActiveFilter(etab)) params.set('code_etablissement', etab.trim());
+    const url = '/api/direction/saisies' + (params.toString() ? `?${params.toString()}` : '');
+
+    try {
+      const res = await fetch(url);
+      allRows = await res.json();
+
+      if (!Array.isArray(allRows) || allRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="18"><div class="empty-state"><div class="icon">📄</div><p>Aucune saisie correspondant aux critères.</p></div></td></tr>`;
+        document.getElementById('table-footer').innerHTML = '';
+        return;
+      }
+
+      renderTable(allRows);
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="18" style="text-align:center;padding:30px;color:var(--error)">Erreur de chargement.</td></tr>`;
+    }
+  }
+
+  function renderTable(rows) {
+    const tbody = document.getElementById('main-tbody');
+    tbody.innerHTML = rows.map((r, i) => {
+      const cycleCls = (r.cycle || '').toUpperCase();
+      return `
+        <tr>
+          <td data-label="N°">${i + 1}</td>
+          <td data-label="Cycle"><span class="cycle-badge ${cycleCls}">${r.cycle || '—'}</span></td>
+          <td data-label="Établissement" style="text-align:left; font-size:0.72rem">${r.nom_etablissement || r.code_etablissement || '—'}</td>
+          <td data-label="Mois" style="font-size:0.75rem; white-space:nowrap">${r.mois || '—'}</td>
+          <td data-label="Nom & Prénom" style="text-align:left; font-weight:500"><span class="truncate-nom" title="${r.nom || ''}">${r.nom || '—'}</span></td>
+          <td data-label="Grade" style="text-align:left; font-size:0.7rem"><span class="truncate-grade" title="${r.grade || ''}">${r.grade || '—'}</span></td>
+          <td data-label="S.O.M">${r.ppr || '—'}</td>
+          <td data-label="Nbre Heures"><strong>${r.nombre_heures}</strong></td>
+          <td data-label="Taux Hor.">${r.taux_horaire} DH</td>
+          <td data-label="Montant Brut" class="col-fin"><strong>${fmt(r.montant_brut)} DH</strong></td>
+          <td data-label="Taux IR" class="col-fin">${r.taux_ir} %</td>
+          <td data-label="Prélèvement" class="col-fin" style="color:var(--error)">${fmt(r.prelevement_ir)} DH</td>
+          <td data-label="Montant Net" class="col-fin" style="color:var(--green); font-weight:700">${fmt(r.montant_net)} DH</td>
+          <td data-label="Affectation" style="text-align:left; font-size:0.7rem">${r.affectation || '—'}</td>
+          <td data-label="C.I.N">${r.cin || '—'}</td>
+          <td data-label="RIB"><span class="truncate-rib" title="${r.rib || ''}">${r.rib || '—'}</span></td>
+          <td data-label="Statut"><span class="badge-validated ${r.valide_par_direction ? 'yes' : 'no'}">${r.valide_par_direction ? '✓ Validé' : 'En attente'}</span></td>
+          <td data-label="Action">
+            ${r.valide_par_direction
+              ? `<button class="btn-invalider" onclick="setValidation(${r.id}, false)">Annuler</button>`
+              : `<button class="btn-valider"   onclick="setValidation(${r.id}, true)">✓ Valider</button>`}
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // Footer totals
+    const totalBrut = rows.reduce((a, r) => a + Number(r.montant_brut || 0), 0);
+    const totalIR   = rows.reduce((a, r) => a + Number(r.prelevement_ir || 0), 0);
+    const totalNet  = rows.reduce((a, r) => a + Number(r.montant_net || 0), 0);
+    document.getElementById('table-footer').innerHTML = `
+      <span>${rows.length} saisie(s) affichée(s)</span>
+      <span>Brut : <strong>${fmt(totalBrut)} DH</strong> &nbsp;|&nbsp; IR : <strong style="color:var(--error)">${fmt(totalIR)} DH</strong> &nbsp;|&nbsp; Net : <strong style="color:var(--green)">${fmt(totalNet)} DH</strong></span>
+    `;
+  }
+
+  // ── Validate ──────────────────────────────────────────────────────────────
+  async function setValidation(id, valide) {
+    try {
+      const res = await fetch(`/api/direction/saisies/${id}/valider`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ valide })
+      });
+      if (res.ok) {
+        showToast(valide ? 'Saisie validée ✓' : 'Validation annulée', valide ? 'success' : 'error');
+        await loadStats();
+        chargerSaisies();
+      }
+    } catch {
+      showToast('Erreur réseau', 'error');
+    }
+  }
+
+  // ── Reset Filters ─────────────────────────────────────────────────────────
+  function resetFiltres() {
+    document.getElementById('f-mois').value = '';
+    document.getElementById('f-cycle').value = '';
+    document.getElementById('f-etab').value = '';
+    chargerSaisies();
+  }
+
+  // ── Purge Modal Logic ──────────────────────────────────────────────────────
+  function ouvrirModalePurge() {
+    // Close the Paramètres dropdown first
+    document.querySelectorAll('.nav-dropdown-content').forEach(d => d.classList.remove('show'));
+    const overlay = document.getElementById('purge-overlay');
+    overlay.classList.add('active');
+    // Reset state
+    document.getElementById('purge-radio-all').checked = false;
+    document.getElementById('purge-radio-month').checked = false;
+    document.getElementById('purge-confirm-check').checked = false;
+    document.querySelector('.purge-option[data-mode="all"]').classList.remove('selected');
+    document.querySelector('.purge-option[data-mode="month"]').classList.remove('selected');
+    document.getElementById('btn-purge-confirm').classList.remove('enabled');
+  }
+
+  function fermerModalePurge() {
+    document.getElementById('purge-overlay').classList.remove('active');
+  }
+
+  function selectPurgeMode(mode) {
+    document.querySelectorAll('.purge-option').forEach(el => el.classList.remove('selected'));
+    document.querySelector(`.purge-option[data-mode="${mode}"]`).classList.add('selected');
+    document.getElementById('purge-radio-' + (mode === 'all' ? 'all' : 'month')).checked = true;
+    // Reset confirm checkbox when switching mode
+    document.getElementById('purge-confirm-check').checked = false;
+    document.getElementById('btn-purge-confirm').classList.remove('enabled');
+  }
+
+  function onPurgeCheckChange(cb) {
+    const allChecked = document.getElementById('purge-radio-all').checked;
+    const monthChecked = document.getElementById('purge-radio-month').checked;
+    const btn = document.getElementById('btn-purge-confirm');
+    if (cb.checked && (allChecked || monthChecked)) {
+      btn.classList.add('enabled');
+    } else {
+      btn.classList.remove('enabled');
+    }
+  }
+
+  async function executerPurge() {
+    const isAll = document.getElementById('purge-radio-all').checked;
+    const isMonth = document.getElementById('purge-radio-month').checked;
+    const confirmCheck = document.getElementById('purge-confirm-check').checked;
+    
+    if (!confirmCheck || (!isAll && !isMonth)) return;
+
+    if (isAll) {
+      try {
+        const res = await fetch('/api/direction/saisies/vider', { method: 'DELETE' });
+        if (res.ok) {
+          showToast(currentLang === 'ar' ? 'تم إفراغ قاعدة البيانات بنجاح' : 'Base de données vidée avec succès.', 'success');
+          fermerModalePurge();
+          chargerSaisies();
+          chargerStats();
+        } else {
+          showToast('Erreur lors du vidage', 'error');
+        }
+      } catch {
+        showToast('Erreur serveur', 'error');
+      }
+    } else if (isMonth) {
+      const moisVal = document.getElementById('purge-mois').value;
+      const anneeVal = document.getElementById('purge-annee').value;
+      if (!moisVal) { showToast('Veuillez sélectionner un mois.', 'error'); return; }
+      const moisComplet = `${moisVal} ${anneeVal}`;
+      try {
+        const res = await fetch(`/api/direction/saisies/vider-mois?mois=${encodeURIComponent(moisComplet)}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(currentLang === 'ar' 
+            ? `تم حذف ${data.deleted} بيان(ات) بنجاح`
+            : `${data.deleted} saisie(s) supprimée(s) pour ${moisComplet}.`, 'success');
+          fermerModalePurge();
+          chargerSaisies();
+          chargerStats();
+        } else {
+          showToast(data.error || 'Erreur lors du vidage', 'error');
+        }
+      } catch {
+        showToast('Erreur serveur', 'error');
+      }
+    }
+  }
+
+  // ── Export Excel ──────────────────────────────────────────────────────────
+  function exportExcel() {
+    const { mois, cycle, etab, etabName } = currentFilters;
+    
+    // Si aucun cycle n'est actif via le filtre, et pour que le serveur gère le chargement
+    // par défaut "TOUS" s'il n'y a pas de cible précise, on l'ajoute.
+    let url = `/api/export/excel?liste_no=1`;
+    const effectiveCycle = isActiveFilter(cycle) ? cycle : 'TOUS';
+    
+    url += `&cycle=${encodeURIComponent(effectiveCycle)}`;
+    if (isActiveFilter(mois)) url += `&mois=${encodeURIComponent(mois.trim())}`;
+    if (isActiveFilter(etab)) {
+       url += `&etablissement=${encodeURIComponent(etab.trim())}`;
+       url += `&nom_etab=${encodeURIComponent(etabName.trim())}`;
+    }
+    window.location.href = url;
+  }
+
+  
+  
+  // ── GID Export ────────────────────────────────────────────────────────────
+  function exportGID() {
+    const { mois, cycle: filterCycle, etab } = currentFilters;
+    
+    let url = `/api/export/gid?liste_no=1`;
+    if (isActiveFilter(filterCycle)) url += `&cycle=${encodeURIComponent(filterCycle.trim())}`;
+    if (isActiveFilter(mois)) url += `&mois=${encodeURIComponent(mois.trim())}`;
+    if (isActiveFilter(etab)) url += `&etablissement=${encodeURIComponent(etab.trim())}`;
+    window.location.href = url;
+  }
+
+  
+    const fmtN = n => Number(n).toLocaleString('fr-MA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+
+
+    function resetHistFilters() {
+      document.getElementById('hist-annee').value = '';
+      document.getElementById('hist-mois').value = '';
+      document.getElementById('hist-date').value = '';
+      loadHistoriquePage();
+    }
+
+    async function loadHistoriquePage() {
+      const container = document.getElementById('historique-tables-container');
+      container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--muted);"><span class="loading-spinner-inline"></span> Chargement des données...</div>';
+      
+      try {
+        let url = '/api/direction/saisies';
+        const res = await fetch(url);
+        let data = await res.json();
+        
+        // Frontend filters
+        const filterAnnee = document.getElementById('hist-annee').value.trim();
+        const filterMois = document.getElementById('hist-mois').value.trim();
+        const filterDate = document.getElementById('hist-date').value;
+
+        // Populate years dynamically from data if not already done
+        const anneeSelect = document.getElementById('hist-annee');
+        if (anneeSelect.options.length <= 1) {
+          const years = [...new Set(data.map(r => (r.mois || '').split(' ')[1]).filter(y => y))].sort();
+          years.forEach(y => {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            anneeSelect.appendChild(opt);
+          });
+        }
+        
+        if (filterAnnee) {
+          data = data.filter(r => (r.mois || '').includes(filterAnnee));
+        }
+        if (filterMois) {
+          data = data.filter(r => (r.mois || '').toLowerCase().startsWith(filterMois.toLowerCase()));
+        }
+        if (filterDate) {
+          data = data.filter(r => {
+            if (!r.date_saisie) return false;
+            const d = new Date(r.date_saisie);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}` === filterDate;
+          });
+        }
+
+        if (data.length === 0) {
+          container.innerHTML = '<div class="empty-state"><div class="icon">📁</div><p>Aucune saisie trouvée pour ces critères.</p></div>';
+          return;
+        }
+
+        const grouped = {};
+        data.forEach(r => {
+          const m = r.mois || 'Non défini';
+          if (!grouped[m]) grouped[m] = [];
+          grouped[m].push(r);
+        });
+
+        const moisOrder = {'janvier':1, 'février':2, 'fevrier':2, 'mars':3, 'avril':4, 'mai':5, 'juin':6, 'juillet':7, 'août':8, 'aout':8, 'septembre':9, 'octobre':10, 'novembre':11, 'décembre':12, 'decembre':12};
+        const monthKeys = Object.keys(grouped).sort((a, b) => {
+          if (a === 'Non défini') return 1;
+          if (b === 'Non défini') return -1;
+          const [mA, yA] = a.split(' ');
+          const [mB, yB] = b.split(' ');
+          const yearDiff = (Number(yB) || 0) - (Number(yA) || 0);
+          if (yearDiff !== 0) return yearDiff;
+          const numA = moisOrder[(mA || '').toLowerCase()] || 0;
+          const numB = moisOrder[(mB || '').toLowerCase()] || 0;
+          return numB - numA;
+        });
+        
+        let htmlContent = '';
+        
+        monthKeys.forEach(m => {
+          const rows = grouped[m];
+          const totalNet = rows.reduce((a, r) => a + Number(r.montant_net), 0);
+          
+          htmlContent += `
+          <div class="historique-table-container">
+            <div class="historique-table-header">
+              <div>🗓️ ${m}</div>
+              <span>${rows.length} saisie(s) | Total Net: <strong style="color:var(--green);">${fmtN(totalNet)} DH</strong></span>
+            </div>
+            <div class="table-wrap" style="padding:0; box-shadow:none; border:none; border-radius:0;">
+            <table style="width:100%; border-collapse:collapse; margin:0;" id="saisies-table">
+              <thead>
+                <tr>
+                  <th style="width: 30px;">N°</th>
+                  <th style="width: 70px;">Cycle</th>
+                  <th style="width: 140px;">Établissement</th>
+                  <th style="width: 130px;">Nom & Prénom</th>
+                  <th style="width: 120px;">Grade</th>
+                  <th>S.O.M</th>
+                  <th>Nbre H</th>
+                  <th>Taux</th>
+                  <th class="th-fin">Montant Brut</th>
+                  <th class="th-fin">Taux IR</th>
+                  <th class="th-fin">Prélèv. IR</th>
+                  <th class="th-fin">Montant Net</th>
+                  <th style="width: 110px;">Affectation</th>
+                  <th>C.I.N</th>
+                  <th style="width: 100px;">RIB</th>
+                  <th style="width: 80px;">Mois</th>
+                  <th style="width: 70px;">Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          
+          rows.forEach((r, i) => {
+            const cycleCls = (r.cycle || '').toUpperCase();
+            htmlContent += `
+              <tr>
+                <td data-label="N°">${i + 1}</td>
+                <td data-label="Cycle"><span class="cycle-badge ${cycleCls}">${r.cycle || '—'}</span></td>
+                <td data-label="Établissement" style="text-align:left; font-size:0.72rem">${r.nom_etablissement || r.code_etablissement || '—'}</td>
+                <td data-label="Nom & Prénom" style="text-align:left;"><span class="truncate-nom" title="${r.nom || ''}">${r.nom || '—'}</span></td>
+                <td data-label="Grade" style="text-align:left;"><span class="truncate-grade" title="${r.grade || ''}">${r.grade || '—'}</span></td>
+                <td data-label="S.O.M">${r.ppr || '—'}</td>
+                <td data-label="Nbre Heures"><strong>${r.nombre_heures}</strong></td>
+                <td data-label="Taux Hor.">${r.taux_horaire} DH</td>
+                <td data-label="Montant Brut" class="col-fin"><strong>${fmtN(r.montant_brut)} DH</strong></td>
+                <td data-label="Taux IR" class="col-fin">${r.taux_ir} %</td>
+                <td data-label="Prélèvement" class="col-fin" style="color:var(--error)">${fmtN(r.prelevement_ir)} DH</td>
+                <td data-label="Montant Net" class="col-fin" style="color:var(--green); font-weight:700">${fmtN(r.montant_net)} DH</td>
+                <td data-label="Affectation" style="text-align:left; font-size:0.72rem">${r.affectation || '—'}</td>
+                <td data-label="C.I.N">${r.cin || '—'}</td>
+                <td data-label="RIB"><span class="truncate-rib" title="${r.rib || ''}">${r.rib || '—'}</span></td>
+                <td data-label="Mois" style="font-size:0.75rem">${r.mois || '—'}</td>
+                <td data-label="Statut"><span class="badge-validated ${r.valide_par_direction ? 'yes' : 'no'}">${r.valide_par_direction ? '✓ Validé' : 'En attente'}</span></td>
+              </tr>
+            `;
+          });
+          
+          htmlContent += `</tbody></table></div></div>`;
+        });
+        
+        container.innerHTML = htmlContent;
+      } catch (err) {
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--error);">Erreur lors du chargement.</div>';
+      }
+    }
+  
+
+  // ── Security Panel ────────────────────────────────────────────────────────
+  function generateRandomPassword() {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    for (let i = 0; i < 12; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById('sec-password').value = password;
+  }
+
+  async function changeEtabPassword() {
+    const gresa = document.getElementById('sec-gresa').value.trim();
+    const newPassword = document.getElementById('sec-password').value.trim();
+
+    if (!gresa || !newPassword) {
+      showToast('Veuillez saisir le GRESA et le nouveau mot de passe.', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/direction/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code_etablissement: gresa, new_password: newPassword })
+      });
+      const result = await res.json();
+      if (result.success) {
+        showToast('Mot de passe modifié avec succès !', 'success');
+        document.getElementById('sec-gresa').value = '';
+        document.getElementById('sec-password').value = '';
+      } else {
+        showToast(result.error || 'Erreur lors de la modification.', 'error');
+      }
+    } catch (err) {
+      showToast('Erreur serveur.', 'error');
+    }
+  }
+
+  // ── Logout ────────────────────────────────────────────────────────────────
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.href = '/';
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => { t.className = 'toast'; }, 4000);
+  }
+
+  init();
+</script>
+
+<!-- ── Purge Modal ── -->
+<div class="purge-overlay" id="purge-overlay" onclick="if(event.target===this)fermerModalePurge()">
+  <div class="purge-modal">
+    <div class="purge-head">
+      <div>🗑️</div>
+      <div>
+        <h3>Vider la base de données</h3>
+        <p>Supprimer des saisies de la base de données</p>
+      </div>
+    </div>
+    <div class="purge-body">
+      <div class="purge-option" data-mode="all" onclick="selectPurgeMode('all')">
+        <input type="radio" name="purge-mode" id="purge-radio-all">
+        <label for="purge-radio-all">Vider tout l'historique</label>
+        <div class="purge-desc">Suppression complète de toutes les saisies, tous mois confondus.</div>
+      </div>
+      <div class="purge-option" data-mode="month" onclick="selectPurgeMode('month')">
+        <input type="radio" name="purge-mode" id="purge-radio-month">
+        <label for="purge-radio-month">Vider un mois précis</label>
+        <div class="purge-desc">Supprimer uniquement les saisies d'un mois et d'une année donnés.</div>
+        <div class="purge-month-select">
+          <select id="purge-mois">
+            <option value="">-- Mois --</option>
+            <option value="Janvier">Janvier</option>
+            <option value="Février">Février</option>
+            <option value="Mars">Mars</option>
+            <option value="Avril">Avril</option>
+            <option value="Mai">Mai</option>
+            <option value="Juin">Juin</option>
+            <option value="Juillet">Juillet</option>
+            <option value="Août">Août</option>
+            <option value="Septembre">Septembre</option>
+            <option value="Octobre">Octobre</option>
+            <option value="Novembre">Novembre</option>
+            <option value="Décembre">Décembre</option>
+          </select>
+          <select id="purge-annee">
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="purge-warning">
+        <span class="warn-icon">⚠️</span>
+        <div><strong>Attention :</strong> Cette action est <strong>irréversible</strong>. Les données supprimées ne pourront pas être récupérées.</div>
+      </div>
+
+      <label class="purge-confirm-check">
+        <input type="checkbox" id="purge-confirm-check" onchange="onPurgeCheckChange(this)">
+        Je confirme vouloir supprimer définitivement ces données.
+      </label>
+    </div>
+    <div class="purge-footer">
+      <button class="btn-purge-cancel" onclick="fermerModalePurge()">Annuler</button>
+      <button class="btn-purge-confirm" id="btn-purge-confirm" onclick="executerPurge()">🗑️ Confirmer la suppression</button>
+    </div>
+  </div>
+</div>
+
+  <script src="/lang.js"></script>
+</body>
+</html>

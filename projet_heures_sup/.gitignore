@@ -1,0 +1,27 @@
+# Fichiers sensibles - ne jamais partager le vrai .env
+.env
+
+# Dépendances Node.js (se réinstallent avec npm install, pas besoin de les enregistrer)
+node_modules/
+
+# Fichiers de logs
+*.log
+npm-debug.log*
+
+# Fichiers générés / temporaires
+dist/
+build/
+tmp/
+*.tmp
+
+# Fichiers Excel de sortie générés par l'application (exports téléchargés, à ne pas versionner)
+exports/
+*.xlsx.tmp
+
+# Fichiers système Windows/Mac
+.DS_Store
+Thumbs.db
+
+# Fichiers d'environnement de développement (VS Code, etc.)
+.vscode/
+*.code-workspace

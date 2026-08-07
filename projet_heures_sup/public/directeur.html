@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Espace Directeur — Heures Supplémentaires</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1B4F8A;
+      --navy-dark: #143D6B;
+      --navy-light: #EEF4FC;
+      --green: #0D5C2E;
+      --green-light: #E8F7EF;
+      --gold: #C8992A;
+      --bg: #F0F4F9;
+      --white: #FFFFFF;
+      --text: #1A2340;
+      --muted: #6B7A99;
+      --border: #D1DCF0;
+      --error: #D94040;
+      --success: #16a34a;
+      --radius: 14px;
+      --shadow: 0 4px 24px rgba(27,79,138,0.10);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+      color: white;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      box-shadow: 0 2px 12px rgba(27,79,138,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .navbar-icon { font-size: 1.5rem; }
+    .navbar-text h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .navbar-text p {
+      font-size: 0.72rem;
+      opacity: 0.8;
+      line-height: 1.2;
+    }
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .etab-badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      text-align: right;
+    }
+    .etab-badge .cycle-tag {
+      font-weight: 700;
+      font-size: 0.65rem;
+      background: var(--gold);
+      color: #3B2600;
+      border-radius: 4px;
+      padding: 1px 7px;
+      margin-top: 3px;
+      display: inline-block;
+    }
+    .btn-logout {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 7px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(255,255,255,0.22);
+    }
+
+    /* ── Layout ── */
+    .main-layout {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .main-layout > div {
+      min-width: 0;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 20px;
+      box-shadow: 0px 12px 32px rgba(15, 34, 58, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(27, 79, 138, 0.1);
+      background: rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-header h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .card-header .icon { font-size: 1.1rem; }
+    .card-body { padding: 20px; }
+
+    /* ── Form ── */
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 5px;
+      letter-spacing: 0.3px;
+    }
+    input, select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 2px solid var(--border);
+      border-radius: 9px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      background: #FAFCFF;
+    }
+    input:focus, select:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(27,79,138,0.10);
+      background: white;
+    }
+    input:read-only {
+      background: #F5F8FE;
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+    .field { margin-bottom: 14px; }
+
+    .ppr-row {
+      display: flex;
+      gap: 10px;
+    }
+    .ppr-row input { flex: 1; }
+    .btn-search {
+      padding: 11px 16px;
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-search:hover { background: var(--navy-dark); }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .info-grid .col-full { grid-column: 1 / -1; }
+
+    /* Teacher info card */
+    .teacher-info {
+      background: linear-gradient(135deg, var(--navy-light), rgba(27,79,138,0.04));
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: none;
+      position: relative;
+    }
+    .teacher-info.show { display: block; }
+    .teacher-info .teacher-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .teacher-info .teacher-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .teacher-meta-item {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .teacher-meta-item strong { color: var(--text); font-weight: 600; }
+
+    /* ── Edit teacher button ── */
+    .btn-edit-teacher {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: var(--navy);
+      transition: all 0.2s;
+      box-shadow: 0 1px 4px rgba(27,79,138,0.10);
+    }
+    .btn-edit-teacher:hover {
+      background: var(--navy);
+      color: white;
+      border-color: var(--navy);
+      transform: scale(1.08);
+    }
+
+    /* ── Edit Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,25,50,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-box {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(15,25,50,0.25);
+      width: 100%;
+      max-width: 480px;
+      margin: 16px;
+      transform: scale(0.94) translateY(12px);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      overflow: hidden;
+    }
+    .modal-overlay.open .modal-box {
+      transform: scale(1) translateY(0);
+    }
+    .modal-head {
+      background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+      color: white;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-head h3 { font-size: 0.95rem; font-weight: 700; }
+    .modal-head p { font-size: 0.75rem; opacity: 0.75; margin-top: 2px; }
+    .btn-modal-close {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .btn-modal-close:hover { background: rgba(255,255,255,0.28); }
+    .modal-body { padding: 22px; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-field label {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+    .modal-field input {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: #FAFCFF;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .modal-field input:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(27,79,138,0.10);
+    }
+    .modal-footer {
+      padding: 14px 22px 18px;
+      display: flex;
+      gap: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-modal-save {
+      flex: 1;
+      padding: 11px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+      color: white;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    .btn-modal-save:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(27,79,138,0.3); }
+    .btn-modal-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-modal-cancel {
+      padding: 11px 18px;
+      background: white;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    .btn-modal-cancel:hover { background: #F0F4F9; color: var(--text); }
+
+    .taux-display {
+      background: linear-gradient(135deg, #0D5C2E, #17a84f);
+      color: white;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .taux-display .amount {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--green), #0A4723);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(13,92,46,0.35);
+    }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      z-index: 999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      max-width: 360px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--success); color: white; }
+    .toast.error { background: var(--error); color: white; }
+
+    /* ── Filters ── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-bar label { margin-bottom: 0; white-space: nowrap; }
+    .filter-bar select { width: auto; min-width: 160px; }
+    .btn-filter {
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: 2px solid var(--navy);
+      background: white;
+      color: var(--navy);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-filter:hover { background: var(--navy); color: white; }
+    .btn-export {
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+      background: var(--green);
+      color: white;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-left: auto;
+      transition: all 0.2s;
+    }
+    .btn-export:hover { background: #0A4723; }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    
+    /* ── Table Improvements ── */
+    thead th {
+      background: rgba(27, 79, 138, 0.95);
+      backdrop-filter: blur(6px);
+      color: white;
+      padding: 12px 6px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: none;
+    }
+    
+    .th-fin { background: rgba(20, 61, 107, 0.95) !important; color: #E7EEF8 !important; border-bottom: 2px solid #5DA271; }
+    .col-fin { background: rgba(250, 251, 252, 0.5); }
+    
+    .truncate-rib {
+      max-width: 90px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: middle;
+      font-family: monospace;
+    }
+    .truncate-grade {
+      max-width: 110px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      white-space: normal;
+      font-size: 0.7rem;
+    }
+    .truncate-nom {
+      max-width: 130px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: middle;
+      font-weight: 600;
+    }
+
+    @media (max-width: 1100px) {
+      #saisies-table, #saisies-table thead, #saisies-table tbody, #saisies-table th, #saisies-table td, #saisies-table tr {
+        display: block;
+        width: 100%;
+      }
+      #saisies-table thead { display: none; }
+      #saisies-table tr {
+        margin-bottom: 16px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 6px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+      }
+      #saisies-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f4f9;
+        padding: 8px 10px;
+        text-align: right !important;
+        font-size: 0.85rem;
+      }
+      #saisies-table td:last-child {
+        border-bottom: none;
+        justify-content: center;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-top: 5px;
+      }
+      #saisies-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--muted);
+        font-size: 0.75rem;
+        text-align: left;
+        margin-right: 12px;
+        text-transform: uppercase;
+      }
+      .col-fin { background: transparent; }
+      .truncate-rib, .truncate-grade, .truncate-nom {
+        max-width: none;
+        white-space: normal;
+        display: block;
+      }
+    }
+
+    tbody td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      vertical-align: middle;
+    }
+    tbody tr:nth-child(even) td { background: #F7FAFF; }
+    tbody tr:hover td { background: var(--navy-light); }
+
+    .badge-validated {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-validated.yes { background: var(--green-light); color: var(--green); }
+    .badge-validated.no { background: #FEF3CD; color: #92600A; }
+
+    .btn-del {
+      background: none;
+      border: 1px solid #F0CECE;
+      border-radius: 6px;
+      color: var(--error);
+      cursor: pointer;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      transition: all 0.2s;
+    }
+    .btn-del:hover { background: var(--error); color: white; }
+
+    .btn-etat {
+      background: rgba(235, 243, 255, 0.6);
+      border: 1px solid #B4D3FF;
+      border-radius: 6px;
+      color: #1B4F8A;
+      cursor: pointer;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .btn-etat:hover { background: #1B4F8A; color: white; border-color: #1B4F8A; transform: scale(1.05); }
+
+    .btn-del {
+      background: rgba(254, 243, 243, 0.6);
+      border: 1px solid #F0CECE;
+      border-radius: 6px;
+      color: #D32F2F;
+      cursor: pointer;
+      padding: 4px 10px;
+      margin-right: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .btn-del:hover { background: #D32F2F; color: white; transform: scale(1.05); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .empty-state p { font-size: 0.85rem; }
+
+    .stats-bar {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .stat-chip {
+      background: var(--navy-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 0.78rem;
+    }
+    .stat-chip .val {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--navy);
+      display: block;
+    }
+    .stat-chip .lbl { color: var(--muted); }
+
+    .loading-spinner-inline {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(27,79,138,0.2);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      .main-layout { grid-template-columns: 1fr; }
+    }
+  
+    /* ── Dropdown Nav Menu ── */
+    .nav-dropdown {
+      position: relative;
+    }
+    .btn-menu {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .btn-menu:hover {
+      background: rgba(255,255,255,0.28);
+      transform: scale(1.05);
+    }
+    .nav-dropdown-content {
+      position: absolute;
+      top: 130%;
+      right: 0;
+      background: white;
+      min-width: 220px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(15,34,58,0.15), 0 0 0 1px rgba(27,79,138,0.05);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 1000;
+    }
+    .nav-dropdown.open .nav-dropdown-content {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .nav-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      border-bottom: 1px solid #f8fafc;
+      transition: background 0.2s, padding-left 0.2s, padding-right 0.2s;
+    }
+    .nav-dropdown-item:last-child { border-bottom: none; }
+    .nav-dropdown-item:hover { background: #f4f7fb; padding-left: 22px; }
+    .nav-dropdown-item.active { background: var(--navy-light); color: var(--navy); font-weight: 700; border-left: 3px solid var(--navy); }
+    .nav-dropdown-item.active:hover { padding-left: 18px; }
+    .nav-dropdown-item.text-danger { color: var(--error); font-weight: 600; }
+    
+    /* RTL Adjustments for Dropdown */
+    html[dir="rtl"] .nav-dropdown-content { right: auto; left: 0; }
+    html[dir="rtl"] .nav-dropdown-item { text-align: right; }
+    html[dir="rtl"] .nav-dropdown-item.active { border-left: none; border-right: 3px solid var(--navy); }
+    html[dir="rtl"] .nav-dropdown-item:hover { padding-left: 18px; padding-right: 22px; }
+    html[dir="rtl"] .nav-dropdown-item.active:hover { padding-right: 18px; }
+    html[dir="rtl"] .nav-dropdown-select-wrap label { text-align: right; }
+    
+    
+    .nav-dropdown-select-wrap {
+      padding: 12px 18px;
+      border-bottom: 1px solid #f8fafc;
+      background: #fafbfc;
+    }
+    .nav-dropdown-select-wrap label {
+      font-size: 0.72rem; color: var(--muted); display: block; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .nav-dropdown-select-wrap select {
+      width: 100%; padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--border); font-size: 0.82rem; font-family: inherit; font-weight: 500;
+      background: white; outline: none; transition: border-color 0.2s;
+    }
+    .nav-dropdown-select-wrap select:focus { border-color: var(--navy); }
+
+    @media (max-width: 650px) {
+      .etab-badge { display: none; }
+      .navbar-brand h3 { font-size: 0.85rem; }
+      .navbar-brand p { font-size: 0.65rem; }
+      .nav-dropdown-content {
+        position: fixed;
+        top: 64px; left: 0; right: 0;
+        width: 100vw; min-width: 100vw;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 16px 40px rgba(15,34,58,0.25);
+        max-height: calc(100vh - 64px); overflow-y: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span class="navbar-icon">🏫</span>
+    <div class="navbar-text">
+      <h3>Heures Supplémentaires & Vacations</h3>
+      <p>Direction Provinciale Tanger-Assilah</p>
+    </div>
+  </div>
+  
+  <div class="navbar-right">
+    <div class="etab-badge">
+      <div id="nav-etab-nom">—</div>
+      <span class="cycle-tag" id="nav-cycle">—</span>
+    </div>
+    
+    <div class="nav-dropdown" id="main-dropdown">
+      <button class="btn-menu" aria-label="Menu principal" onclick="toggleMainMenu(event)">
+        <span style="font-size:1.3rem;">☰</span>
+      </button>
+      <div class="nav-dropdown-content">
+        <button id="tab-saisie" class="nav-dropdown-item active" onclick="switchPage('saisie'); toggleMainMenu()">✏️ Saisies du mois</button>
+        <button id="tab-historique" class="nav-dropdown-item" onclick="switchPage('historique'); toggleMainMenu()">📚 Historique global</button>
+        
+        <div class="nav-dropdown-select-wrap">
+          <label>Langue d'affichage</label>
+          <select id="lang-selector" onchange="switchLang(this.value)">
+             <option value="fr">🇫🇷 Français</option>
+             <option value="ar">🇲🇦 العربية</option>
+          </select>
+        </div>
+        
+        <button class="nav-dropdown-item text-danger" onclick="logout()">🚪 Déconnexion</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div id="page-saisie" style="display:block;">
+<div class="main-layout">
+
+  <!-- ── LEFT: SAISIE FORM ── -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <span class="icon">✏️</span>
+        <h2>Nouvelle Saisie</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- PPR lookup -->
+        <div class="field">
+          <label for="ppr-input">Numéro S.O.M (PPR) de l'enseignant</label>
+          <div class="ppr-row">
+            <input type="text" id="ppr-input" placeholder="Ex. : 123456" inputmode="numeric" />
+            <button class="btn-search" onclick="rechercherEnseignant()">🔍 Rechercher</button>
+          </div>
+        </div>
+
+        <!-- Teacher info display -->
+        <div class="teacher-info" id="teacher-info">
+          <button class="btn-edit-teacher" id="btn-edit-teacher" title="Modifier les informations" onclick="ouvrirModaleEdition()">
+            ✏️
+          </button>
+          <div class="teacher-name" id="t-nom">—</div>
+          <div class="teacher-meta">
+            <div class="teacher-meta-item">Grade : <strong id="t-grade">—</strong></div>
+            <div class="teacher-meta-item">CIN : <strong id="t-cin">—</strong></div>
+            <div class="teacher-meta-item col-full">Affectation : <strong id="t-affectation">—</strong></div>
+          </div>
+        </div>
+
+        <div class="taux-display" id="taux-display">
+          <span>Taux horaire (selon cycle)</span>
+          <span class="amount" id="taux-val">— DH/h</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Month -->
+        <div class="field">
+          <label for="mois-select">Mois</label>
+          <select id="mois-select">
+            <option value="">-- Sélectionner un mois --</option>
+            <option>Janvier 2026</option>
+            <option>Février 2026</option>
+            <option>Mars 2026</option>
+            <option>Avril 2026</option>
+            <option>Mai 2026</option>
+            <option>Juin 2026</option>
+            <option>Juillet 2026</option>
+            <option>Août 2026</option>
+            <option>Septembre 2026</option>
+            <option>Octobre 2026</option>
+            <option>Novembre 2026</option>
+            <option>Décembre 2026</option>
+          </select>
+        </div>
+
+        <!-- Hours per day -->
+        <div class="field" id="hours-grid">
+          <label>Heures effectuées par jour (Mois en cours)</label>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 5px;">
+            <div>
+              <label for="h-lundi" style="font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; display:block">Lundi</label>
+              <input type="number" id="h-lundi" class="h-jour" placeholder="0" min="0" step="0.5" />
+            </div>
+            <div>
+              <label for="h-mardi" style="font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; display:block">Mardi</label>
+              <input type="number" id="h-mardi" class="h-jour" placeholder="0" min="0" step="0.5" />
+            </div>
+            <div>
+              <label for="h-mercredi" style="font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; display:block">Mercredi</label>
+              <input type="number" id="h-mercredi" class="h-jour" placeholder="0" min="0" step="0.5" />
+            </div>
+            <div>
+              <label for="h-jeudi" style="font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; display:block">Jeudi</label>
+              <input type="number" id="h-jeudi" class="h-jour" placeholder="0" min="0" step="0.5" />
+            </div>
+            <div>
+              <label for="h-vendredi" style="font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; display:block">Vendredi</label>
+              <input type="number" id="h-vendredi" class="h-jour" placeholder="0" min="0" step="0.5" />
+            </div>
+            <div>
+              <label for="h-samedi" style="font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; display:block">Samedi</label>
+              <input type="number" id="h-samedi" class="h-jour" placeholder="0" min="0" step="0.5" />
+            </div>
+          </div>
+          <div style="text-align: right; font-size: 0.8rem; margin-top: 5px; color: var(--text)">
+            Total : <strong id="h-total-calc">0</strong> h
+          </div>
+        </div>
+
+        <!-- Taux IR -->
+        <div class="field">
+          <label for="taux-ir">Taux IR (%)</label>
+          <select id="taux-ir">
+            <option value="">-- Sélectionner --</option>
+            <option value="30">30 %</option>
+            <option value="34">34 %</option>
+            <option value="37">37 %</option>
+          </select>
+        </div>
+
+        <!-- RIB -->
+        <div class="field">
+          <label for="rib-input">RIB (optionnel)</label>
+          <input type="text" id="rib-input" placeholder="Ex. : 00140540823000123456789" maxlength="30" />
+        </div>
+
+        <!-- Preview calculation -->
+        <div id="preview-calc" style="display:none; background: #F5F8FE; border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; font-size: 0.82rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span style="color:var(--muted)">Montant Brut</span>
+            <strong id="prev-brut">—</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span style="color:var(--muted)">Prélèvement IR</span>
+            <strong id="prev-ir" style="color:var(--error)">—</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding-top:6px; border-top: 1px solid var(--border); margin-top:4px;">
+            <span style="font-weight:700; color:var(--green)">Montant Net estimé</span>
+            <strong id="prev-net" style="color:var(--green); font-size:1rem">—</strong>
+          </div>
+          <p style="color:var(--muted); font-size:0.7rem; margin-top:8px;">* Montants officiels calculés par la base de données à l'enregistrement.</p>
+        </div>
+
+        <button class="btn-submit" id="btn-enregistrer" onclick="enregistrerSaisie()">
+          ✅ Enregistrer la saisie
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: LIST OF SAISIES ── -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <span class="icon">📋</span>
+        <h2>Tableau récapitulatif des saisies</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Filters -->
+        <div class="filter-bar">
+          <label>Filtrer par mois :</label>
+          <select id="filter-mois" onchange="chargerSaisies()">
+            <option value="">Tous les mois</option>
+            <option>Janvier 2026</option>
+            <option>Février 2026</option>
+            <option>Mars 2026</option>
+            <option>Avril 2026</option>
+            <option>Mai 2026</option>
+            <option>Juin 2026</option>
+            <option>Juillet 2026</option>
+            <option>Août 2026</option>
+            <option>Septembre 2026</option>
+            <option>Octobre 2026</option>
+            <option>Novembre 2026</option>
+            <option>Décembre 2026</option>
+          </select>
+          <button class="btn-export" id="btn-export" onclick="exportExcel()">⬇ Export Excel</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar" id="stats-bar"></div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+          <table id="saisies-table">
+            <thead>
+              <tr>
+                <th style="width: 30px;">N°</th>
+                <th style="width: 130px;">Nom & Prénom</th>
+                <th style="width: 120px;">Grade</th>
+                <th>S.O.M</th>
+                <th>Nbre H</th>
+                <th>Taux</th>
+                <th class="th-fin">Montant Brut</th>
+                <th class="th-fin">Taux IR</th>
+                <th class="th-fin">Prélèv. IR</th>
+                <th class="th-fin">Montant Net</th>
+                <th style="width: 110px;">Affectation</th>
+                <th>C.I.N</th>
+                <th style="width: 100px;">RIB</th>
+                <th style="width: 80px;">Mois</th>
+                <th style="width: 70px;">Statut</th>
+                <th style="width: 140px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="saisies-tbody">
+              <tr>
+                <td colspan="16">
+                  <div class="empty-state">
+                    <div class="icon">📄</div>
+                    <p>Chargement des données…</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    
+
+  </div>
+
+</div>
+
+
+</div>
+
+  <!-- ── PAGE HISTORIQUE ── -->
+  <div id="page-historique" style="display:none; padding:20px; max-width:1400px; margin:0 auto;">
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <div class="card-header-left">
+          <span class="icon">🔍</span>
+          <h2>Filtres d'historique</h2>
+        </div>
+        <div>
+          <button class="btn-export" style="background:#f0f4f9; color:var(--navy); border:1px solid var(--border);" onclick="resetHistFilters()">🔄 Réinitialiser</button>
+        </div>
+      </div>
+      <div class="card-body" style="display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end;">
+        <div class="filter-group">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--navy);">Année</label>
+          <select id="hist-annee" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; outline:none; background:#f8fafc;" onchange="loadHistoriquePage()">
+            <option value="">Toutes les années</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--navy);">Mois visé (Les heures travaillées)</label>
+          <select id="hist-mois" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; outline:none; background:#f8fafc;" onchange="loadHistoriquePage()">
+            <option value="">Tous les mois</option>
+            <option value="Janvier">Janvier</option>
+            <option value="Février">Février</option>
+            <option value="Mars">Mars</option>
+            <option value="Avril">Avril</option>
+            <option value="Mai">Mai</option>
+            <option value="Juin">Juin</option>
+            <option value="Juillet">Juillet</option>
+            <option value="Août">Août</option>
+            <option value="Septembre">Septembre</option>
+            <option value="Octobre">Octobre</option>
+            <option value="Novembre">Novembre</option>
+            <option value="Décembre">Décembre</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--navy);">Date de saisie (Date d'enregistrement)</label>
+          <input type="date" id="hist-date" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; outline:none; background:#f8fafc;" onchange="loadHistoriquePage()" title="Trouver les saisies effectuées exactement à cette date" />
+        </div>
+      </div>
+    </div>
+
+    <div id="historique-tables-container">
+      <div class="empty-state"><p>Chargement...</p></div>
+    </div>
+  </div>
+  
+<!-- ── Modal Ajout Enseignant ── -->
+<div class="modal-overlay" id="modal-ajout" onclick="fermerModaleAjout(event)">
+  <div class="modal-box">
+    <div class="modal-head" style="background: linear-gradient(135deg, #0D5C2E, #16a34a);">
+      <div>
+        <h3>➕ Ajouter un professeur</h3>
+        <p>Cet enseignant sera enregistré localement</p>
+      </div>
+      <button class="btn-modal-close" onclick="fermerModaleAjout()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label>S.O.M (PPR) *</label>
+        <input type="text" id="add-ppr" readonly style="background:#f5f5f5;" />
+      </div>
+      <div class="modal-field">
+        <label>Nom &amp; Prénom *</label>
+        <input type="text" id="add-nom" placeholder="Nom complet de l'enseignant" />
+      </div>
+      <div class="modal-field">
+        <label>Grade (Optionnel)</label>
+        <input type="text" id="add-grade" placeholder="Grade" />
+      </div>
+      <div class="modal-field">
+        <label>C.I.N (Optionnel)</label>
+        <input type="text" id="add-cin" placeholder="Numéro CIN" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="fermerModaleAjout()">Annuler</button>
+      <button class="btn-modal-save" style="background:#0D5C2E; color:white; border:none;" id="btn-modal-add" onclick="sauvegarderAjout()">
+        ✅ Valider l'ajout
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ── Modal Édition Enseignant ── -->
+<div class="modal-overlay" id="modal-edition" onclick="fermerModaleEdition(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h3>✏️ Modifier les informations</h3>
+        <p>Corrections enregistrées dans la base de données</p>
+      </div>
+      <button class="btn-modal-close" onclick="fermerModaleEdition()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label>Nom &amp; Prénom</label>
+        <input type="text" id="edit-nom" placeholder="Nom complet de l'enseignant" />
+      </div>
+      <div class="modal-field">
+        <label>Grade</label>
+        <input type="text" id="edit-grade" placeholder="Grade" />
+      </div>
+      <div class="modal-field">
+        <label>C.I.N</label>
+        <input type="text" id="edit-cin" placeholder="Numéro CIN" />
+      </div>
+      <div class="modal-field">
+        <label>Affectation (établissement d'origine)</label>
+        <input type="text" id="edit-affectation" placeholder="Nom de l'établissement d'affectation" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="fermerModaleEdition()">Annuler</button>
+      <button class="btn-modal-save" id="btn-modal-save" onclick="sauvegarderEdition()">
+        💾 Enregistrer les modifications
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let sessionUser = null;
+  let currentPPR = null;
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  async function init() {
+    const res = await fetch('/api/me');
+    if (!res.ok) { window.location.href = '/'; return; }
+    sessionUser = await res.json();
+    if (sessionUser.role !== 'directeur') { window.location.href = '/'; return; }
+
+    document.getElementById('nav-etab-nom').textContent = sessionUser.nom_etablissement || sessionUser.code_etablissement;
+    document.getElementById('nav-cycle').textContent = sessionUser.cycle || '—';
+    document.getElementById('taux-val').textContent = sessionUser.taux_horaire + ' DH/h';
+
+    chargerSaisies();
+    
+    setupPreviewCalc();
+  }
+
+  function setupPreviewCalc() {
+    const update = () => {
+      const h = parseFloat(document.getElementById('nb-heures').value) || 0;
+      const ir = parseFloat(document.getElementById('taux-ir').value) || 0;
+      const tx = sessionUser ? sessionUser.taux_horaire : 0;
+      const div = document.getElementById('preview-calc');
+      if (h > 0 && ir > 0 && tx > 0) {
+        const brut = h * tx;
+        const pre = brut * ir / 100;
+        const net = brut - pre;
+        div.style.display = 'block';
+        document.getElementById('prev-brut').textContent = fmt(brut) + ' DH';
+        document.getElementById('prev-ir').textContent = '- ' + fmt(pre) + ' DH';
+        document.getElementById('prev-net').textContent = fmt(net) + ' DH';
+      } else {
+        div.style.display = 'none';
+      }
+    };
+    document.getElementById('nb-heures').addEventListener('input', update);
+    document.getElementById('taux-ir').addEventListener('change', update);
+  }
+
+  const fmt = n => Number(n).toLocaleString('fr-MA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // ── PPR Search ────────────────────────────────────────────────────────────
+  async function rechercherEnseignant() {
+    const ppr = document.getElementById('ppr-input').value.trim();
+    if (!ppr) { showToast('Veuillez saisir un numéro S.O.M', 'error'); return; }
+
+    const infoDiv = document.getElementById('teacher-info');
+    infoDiv.classList.remove('show');
+    currentPPR = null;
+
+    try {
+      const res = await fetch(`/api/enseignant/${encodeURIComponent(ppr)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 404) {
+          ouvrirModaleAjout(ppr);
+        } else {
+          showToast(data.error || 'Enseignant introuvable', 'error');
+        }
+        return;
+      }
+      currentPPR = data.ppr;
+      document.getElementById('t-nom').textContent = data.nom || '—';
+      document.getElementById('t-grade').textContent = data.grade || '—';
+      document.getElementById('t-cin').textContent = data.cin || '—';
+      document.getElementById('t-affectation').textContent = data.affectation || '—';
+      infoDiv.classList.add('show');
+      
+      if (data.rib) {
+        document.getElementById('rib-input').value = data.rib;
+      } else {
+        document.getElementById('rib-input').value = '';
+      }
+
+      // Préremplir la modale avec les données récupérées
+      document.getElementById('edit-nom').value = data.nom || '';
+      document.getElementById('edit-grade').value = data.grade || '';
+      document.getElementById('edit-cin').value = data.cin || '';
+      document.getElementById('edit-affectation').value = data.affectation || '';
+    } catch {
+      showToast('Erreur de communication avec le serveur', 'error');
+    }
+  }
+
+  // Update hours total dynamically
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('ppr-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') rechercherEnseignant();
+    });
+
+    const hInputs = document.querySelectorAll('.h-jour');
+    hInputs.forEach(input => {
+      input.addEventListener('input', () => {
+        let total = 0;
+        hInputs.forEach(inp => total += Number(inp.value) || 0);
+        document.getElementById('h-total-calc').textContent = total.toFixed(1);
+      });
+    });
+  });
+
+  // ── Enregistrer Saisie ────────────────────────────────────────────────────
+  async function enregistrerSaisie() {
+    if (!currentPPR) { showToast('Veuillez d\'abord rechercher un enseignant', 'error'); return; }
+    const mois = document.getElementById('mois-select').value;
+    const ir = document.getElementById('taux-ir').value;
+    const rib = document.getElementById('rib-input').value.trim();
+
+    const jours = {
+      Lundi: Number(document.getElementById('h-lundi').value) || 0,
+      Mardi: Number(document.getElementById('h-mardi').value) || 0,
+      Mercredi: Number(document.getElementById('h-mercredi').value) || 0,
+      Jeudi: Number(document.getElementById('h-jeudi').value) || 0,
+      Vendredi: Number(document.getElementById('h-vendredi').value) || 0,
+      Samedi: Number(document.getElementById('h-samedi').value) || 0,
+    };
+
+    let total = 0;
+    Object.values(jours).forEach(v => total += v);
+
+    if (!mois) { showToast('Veuillez sélectionner un mois', 'error'); return; }
+    if (total <= 0) { showToast('Veuillez saisir au moins une heure dans l\'un des jours', 'error'); return; }
+    if (!ir) { showToast('Veuillez sélectionner le taux IR', 'error'); return; }
+
+    const btn = document.getElementById('btn-enregistrer');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement…';
+
+    try {
+      const res = await fetch('/api/saisies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ppr_enseignant: currentPPR,
+          mois,
+          jours,
+          taux_ir: parseFloat(ir),
+          rib: rib || null
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const newId = data.data && data.data.id;
+        showToast('Saisie enregistrée ✓', 'success');
+        if (newId) {
+          setTimeout(() => {
+            const t = document.getElementById('toast');
+            t.innerHTML = `✅ Enregistré — <a href="/api/saisies/${newId}/etat" target="_blank" style="color:white;font-weight:700;text-decoration:underline;">📄 Télécharger l'État</a>`;
+            t.className = 'toast success show';
+            setTimeout(() => { t.className = 'toast'; }, 6000);
+          }, 1200);
+        }
+        resetForm();
+        chargerSaisies();
+      } else {
+        showToast(data.error || 'Erreur lors de l\'enregistrement', 'error');
+      }
+    } catch {
+      showToast('Erreur réseau', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✅ Enregistrer la saisie';
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('ppr-input').value = '';
+    document.getElementById('mois-select').value = '';
+    document.querySelectorAll('.h-jour').forEach(inp => inp.value = '');
+    document.getElementById('h-total-calc').textContent = '0';
+    document.getElementById('taux-ir').value = '';
+    document.getElementById('rib-input').value = '';
+    document.getElementById('teacher-info').classList.remove('show');
+    document.getElementById('preview-calc').style.display = 'none';
+    currentPPR = null;
+  }
+
+  // ── Load Saisies ──────────────────────────────────────────────────────────
+  async function chargerSaisies() {
+    const mois = document.getElementById('filter-mois').value;
+    const tbody = document.getElementById('saisies-tbody');
+    tbody.innerHTML = `<tr><td colspan="16" style="text-align:center; padding:20px; color:var(--muted)"><span class="loading-spinner-inline"></span> Chargement…</td></tr>`;
+
+    let url = '/api/saisies';
+    if (mois) url += `?mois=${encodeURIComponent(mois)}`;
+
+    try {
+      const res = await fetch(url);
+      const rows = await res.json();
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="16"><div class="empty-state"><div class="icon">📄</div><p>Aucune saisie pour la période sélectionnée.</p></div></td></tr>`;
+        document.getElementById('stats-bar').innerHTML = '';
+        return;
+      }
+
+      // Stats
+      const totalBrut = rows.reduce((a, r) => a + Number(r.montant_brut || 0), 0);
+      const totalNet = rows.reduce((a, r) => a + Number(r.montant_net || 0), 0);
+      document.getElementById('stats-bar').innerHTML = `
+        <div class="stat-chip"><span class="val">${rows.length}</span><span class="lbl">Saisies</span></div>
+        <div class="stat-chip"><span class="val">${fmt(totalBrut)} DH</span><span class="lbl">Total Brut</span></div>
+        <div class="stat-chip"><span class="val">${fmt(totalNet)} DH</span><span class="lbl">Total Net</span></div>
+      `;
+
+      tbody.innerHTML = rows.map((r, i) => `
+        <tr>
+          <td data-label="N°">${i + 1}</td>
+          <td data-label="Nom & Prénom" style="text-align:left;"><span class="truncate-nom" title="${r.nom || ''}">${r.nom || '—'}</span></td>
+          <td data-label="Grade" style="text-align:left;"><span class="truncate-grade" title="${r.grade || ''}">${r.grade || '—'}</span></td>
+          <td data-label="S.O.M">${r.ppr || '—'}</td>
+          <td data-label="Nbre Heures"><strong>${r.nombre_heures}</strong></td>
+          <td data-label="Taux Hor.">${r.taux_horaire} DH</td>
+          <td data-label="Montant Brut" class="col-fin"><strong>${fmt(r.montant_brut)} DH</strong></td>
+          <td data-label="Taux IR" class="col-fin">${r.taux_ir} %</td>
+          <td data-label="Prélèvement" class="col-fin" style="color:var(--error)">${fmt(r.prelevement_ir)} DH</td>
+          <td data-label="Montant Net" class="col-fin" style="color:var(--green); font-weight:700">${fmt(r.montant_net)} DH</td>
+          <td data-label="Affectation" style="text-align:left; font-size:0.72rem">${r.affectation || '—'}</td>
+          <td data-label="C.I.N">${r.cin || '—'}</td>
+          <td data-label="RIB"><span class="truncate-rib" title="${r.rib || ''}">${r.rib || '—'}</span></td>
+          <td data-label="Mois" style="font-size:0.75rem">${r.mois || '—'}</td>
+          <td data-label="Statut"><span class="badge-validated ${r.valide_par_direction ? 'yes' : 'no'}">${r.valide_par_direction ? '✓ Validé' : 'En attente'}</span></td>
+          <td data-label="Action" style="white-space:nowrap; text-align:center;">
+            <button style="background:none; border:1px solid #F0CECE; color:#D32F2F; border-radius:6px; cursor:pointer; padding:3px 8px; font-size:0.75rem; margin-right:4px;" onclick="supprimerSaisie(${r.id})">Suppr.</button>
+            <button style="background:none; border:1px solid #B4D3FF; color:#1B4F8A; border-radius:6px; cursor:pointer; padding:3px 8px; font-size:0.75rem;" onclick="telechargerEtat(${r.id})" title="Télécharger l'état individuel">📄 Document</button>
+          </td>
+        </tr>
+      `).join('');
+
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="16" style="text-align:center; padding:20px; color:var(--error)">Erreur de chargement des données.</td></tr>`;
+    }
+  }
+
+
+  // ── Modal Ajout Enseignant ──
+  function ouvrirModaleAjout(ppr) {
+    document.getElementById('add-ppr').value = ppr.trim();
+    document.getElementById('add-nom').value = '';
+    document.getElementById('add-grade').value = '';
+    document.getElementById('add-cin').value = '';
+    document.getElementById('modal-ajout').classList.add('open');
+  }
+  function fermerModaleAjout(event) {
+    if (event && event.target !== document.getElementById('modal-ajout')) return;
+    document.getElementById('modal-ajout').classList.remove('open');
+  }
+  async function sauvegarderAjout() {
+    const ppr = document.getElementById('add-ppr').value.trim();
+    const nom = document.getElementById('add-nom').value.trim();
+    const grade = document.getElementById('add-grade').value.trim();
+    const cin = document.getElementById('add-cin').value.trim();
+    
+    if (!nom) return showToast('Nom obligatoire', 'error');
+    
+    document.getElementById('btn-modal-add').disabled = true;
+    try {
+      const res = await fetch('/api/enseignant/manuel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ppr, nom, grade, cin })
+      });
+      if (res.ok) {
+        fermerModaleAjout();
+        showToast('Enseignant ajouté avec succès', 'success');
+        rechercherEnseignant(); // Relancer la recherche pour afficher ses infos
+      } else {
+        const d = await res.json();
+        showToast(d.error || 'Erreur', 'error');
+      }
+    } catch(err) {
+      showToast('Erreur réseau', 'error');
+    } finally {
+      document.getElementById('btn-modal-add').disabled = false;
+    }
+  }
+
+  // ── Édition Enseignant ────────────────────────────────────────────────────
+  function ouvrirModaleEdition() {
+    document.getElementById('modal-edition').classList.add('open');
+  }
+
+  function fermerModaleEdition(event) {
+    // Fermer si clic sur l'overlay uniquement (pas sur la modal-box)
+    if (event && event.target !== document.getElementById('modal-edition')) return;
+    document.getElementById('modal-edition').classList.remove('open');
+  }
+
+  async function sauvegarderEdition() {
+    if (!currentPPR) return;
+    const nom = document.getElementById('edit-nom').value.trim();
+    const grade = document.getElementById('edit-grade').value.trim();
+    const cin = document.getElementById('edit-cin').value.trim();
+    const affectation = document.getElementById('edit-affectation').value.trim();
+
+    if (!nom) { showToast('Le nom est obligatoire', 'error'); return; }
+
+    const btn = document.getElementById('btn-modal-save');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement…';
+
+    try {
+      const res = await fetch(`/api/enseignant/${encodeURIComponent(currentPPR)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom, grade, cin, affectation })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // Mettre à jour l'affichage de la fiche
+        document.getElementById('t-nom').textContent = nom || '—';
+        document.getElementById('t-grade').textContent = grade || '—';
+        document.getElementById('t-cin').textContent = cin || '—';
+        document.getElementById('t-affectation').textContent = affectation || '—';
+        fermerModaleEdition();
+        showToast('Informations mises à jour ✓', 'success');
+      } else {
+        showToast(data.error || 'Erreur lors de la mise à jour', 'error');
+      }
+    } catch {
+      showToast('Erreur réseau', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Enregistrer les modifications';
+    }
+  }
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+  async function supprimerSaisie(id) {
+    if (!confirm('Supprimer cette saisie ?')) return;
+    try {
+      const res = await fetch(`/api/saisies/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        showToast('Saisie supprimée', 'success');
+        chargerSaisies();
+      } else {
+        showToast(data.error || 'Impossible de supprimer', 'error');
+      }
+    } catch {
+      showToast('Erreur réseau', 'error');
+    }
+  }
+
+  // ── Télécharger État Individuel ───────────────────────────────────────────
+  function telechargerEtat(id) {
+    window.location.href = `/api/saisies/${id}/etat`;
+  }
+
+  // ── Export ────────────────────────────────────────────────────────────────
+  function exportExcel() {
+    const mois = document.getElementById('filter-mois').value;
+    let url = '/api/export/excel?liste_no=1';
+    if (mois) url += `&mois=${encodeURIComponent(mois)}`;
+    window.location.href = url;
+  }
+
+  // ── Logout ────────────────────────────────────────────────────────────────
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.href = '/';
+  }
+
+  
+    const fmtN = n => Number(n).toLocaleString('fr-MA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function switchPage(page) {
+      document.getElementById('page-saisie').style.display = page === 'saisie' ? 'block' : 'none';
+      document.getElementById('page-historique').style.display = page === 'historique' ? 'block' : 'none';
+      document.getElementById('tab-saisie').classList.toggle('active', page === 'saisie');
+      document.getElementById('tab-historique').classList.toggle('active', page === 'historique');
+      if (page === 'historique') {
+        loadHistoriquePage();
+      }
+    }
+
+    function resetHistFilters() {
+      document.getElementById('hist-annee').value = '';
+      document.getElementById('hist-mois').value = '';
+      document.getElementById('hist-date').value = '';
+      loadHistoriquePage();
+    }
+
+    async function loadHistoriquePage() {
+      const container = document.getElementById('historique-tables-container');
+      container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--muted);"><span class="loading-spinner-inline"></span> Chargement des données...</div>';
+      
+      try {
+        let url = '/api/saisies';
+        const res = await fetch(url);
+        let data = await res.json();
+        
+        // Frontend filters
+        const filterAnnee = document.getElementById('hist-annee').value.trim();
+        const filterMois = document.getElementById('hist-mois').value.trim();
+        const filterDate = document.getElementById('hist-date').value;
+
+        // Populate years dynamically from data if not already done
+        const anneeSelect = document.getElementById('hist-annee');
+        if (anneeSelect.options.length <= 1) {
+          const years = [...new Set(data.map(r => (r.mois || '').split(' ')[1]).filter(y => y))].sort();
+          years.forEach(y => {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            anneeSelect.appendChild(opt);
+          });
+        }
+        
+        if (filterAnnee) {
+          data = data.filter(r => (r.mois || '').includes(filterAnnee));
+        }
+        if (filterMois) {
+          data = data.filter(r => (r.mois || '').toLowerCase().startsWith(filterMois.toLowerCase()));
+        }
+        if (filterDate) {
+          data = data.filter(r => {
+            if (!r.date_saisie) return false;
+            const d = new Date(r.date_saisie);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}` === filterDate;
+          });
+        }
+
+        if (data.length === 0) {
+          container.innerHTML = '<div class="empty-state"><div class="icon">📁</div><p>Aucune saisie trouvée pour ces critères.</p></div>';
+          return;
+        }
+
+        const grouped = {};
+        data.forEach(r => {
+          const m = r.mois || 'Non défini';
+          if (!grouped[m]) grouped[m] = [];
+          grouped[m].push(r);
+        });
+
+        const moisOrder = {'janvier':1, 'février':2, 'fevrier':2, 'mars':3, 'avril':4, 'mai':5, 'juin':6, 'juillet':7, 'août':8, 'aout':8, 'septembre':9, 'octobre':10, 'novembre':11, 'décembre':12, 'decembre':12};
+        const monthKeys = Object.keys(grouped).sort((a, b) => {
+          if (a === 'Non défini') return 1;
+          if (b === 'Non défini') return -1;
+          const [mA, yA] = a.split(' ');
+          const [mB, yB] = b.split(' ');
+          const yearDiff = (Number(yB) || 0) - (Number(yA) || 0);
+          if (yearDiff !== 0) return yearDiff;
+          const numA = moisOrder[(mA || '').toLowerCase()] || 0;
+          const numB = moisOrder[(mB || '').toLowerCase()] || 0;
+          return numB - numA;
+        });
+        
+        let htmlContent = '';
+        const monthNames = {'Janvier':1, 'Février':2, 'Mars':3, 'Avril':4, 'Mai':5, 'Juin':6, 'Juillet':7, 'Août':8, 'Septembre':9, 'Octobre':10, 'Novembre':11, 'Décembre':12};
+        
+        monthKeys.forEach(m => {
+          const rows = grouped[m];
+          const totalNet = rows.reduce((a, r) => a + Number(r.montant_net), 0);
+          
+          htmlContent += `
+          <div class="historique-table-container">
+            <div class="historique-table-header">
+              <div>🗓️ ${m}</div>
+              <span>${rows.length} saisie(s) | Total Net: <strong style="color:var(--green);">${fmtN(totalNet)} DH</strong></span>
+            </div>
+            <div class="table-wrap" style="padding:0; box-shadow:none; border:none; border-radius:0;">
+            <table style="width:100%; border-collapse:collapse; margin:0;" id="saisies-table">
+              <thead>
+                <tr>
+                  <th style="width: 30px;">N°</th>
+                  <th style="width: 130px;">Nom & Prénom</th>
+                  <th style="width: 120px;">Grade</th>
+                  <th>S.O.M</th>
+                  <th>Nbre H</th>
+                  <th>Taux</th>
+                  <th class="th-fin">Montant Brut</th>
+                  <th class="th-fin">Taux IR</th>
+                  <th class="th-fin">Prélèv. IR</th>
+                  <th class="th-fin">Montant Net</th>
+                  <th style="width: 110px;">Affectation</th>
+                  <th>C.I.N</th>
+                  <th style="width: 100px;">RIB</th>
+                  <th style="width: 80px;">Mois</th>
+                  <th style="width: 70px;">Statut</th>
+                </tr>
+              </thead>
+              <tbody id="saisies-tbody">
+          `;
+          
+          rows.forEach((r, i) => {
+            htmlContent += `
+              <tr>
+                <td data-label="N°">${i + 1}</td>
+                <td data-label="Nom & Prénom" style="text-align:left;"><span class="truncate-nom" title="${r.nom || ''}">${r.nom || '—'}</span></td>
+                <td data-label="Grade" style="text-align:left;"><span class="truncate-grade" title="${r.grade || ''}">${r.grade || '—'}</span></td>
+                <td data-label="S.O.M">${r.ppr || '—'}</td>
+                <td data-label="Nbre Heures"><strong>${r.nombre_heures}</strong></td>
+                <td data-label="Taux Hor.">${r.taux_horaire} DH</td>
+                <td data-label="Montant Brut" class="col-fin"><strong>${fmtN(r.montant_brut)} DH</strong></td>
+                <td data-label="Taux IR" class="col-fin">${r.taux_ir} %</td>
+                <td data-label="Prélèvement" class="col-fin" style="color:var(--error)">${fmtN(r.prelevement_ir)} DH</td>
+                <td data-label="Montant Net" class="col-fin" style="color:var(--green); font-weight:700">${fmtN(r.montant_net)} DH</td>
+                <td data-label="Affectation" style="text-align:left; font-size:0.72rem">${r.affectation || '—'}</td>
+                <td data-label="C.I.N">${r.cin || '—'}</td>
+                <td data-label="RIB"><span class="truncate-rib" title="${r.rib || ''}">${r.rib || '—'}</span></td>
+                <td data-label="Mois" style="font-size:0.75rem">${r.mois || '—'}</td>
+                <td data-label="Statut"><span class="badge-validated ${r.valide_par_direction ? 'yes' : 'no'}">${r.valide_par_direction ? '✓ Validé' : 'En attente'}</span></td>
+              </tr>
+            `;
+          });
+          
+          htmlContent += `</tbody></table></div></div>`;
+        });
+        
+        container.innerHTML = htmlContent;
+      } catch (err) {
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--error);">Erreur lors du chargement.</div>';
+      }
+    }
+  
+
+
+  // ── Menu ──────────────────────────────────────────────────────────────────
+  function toggleMainMenu(event) {
+    if (event) event.stopPropagation();
+    document.getElementById('main-dropdown').classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('main-dropdown');
+    if (dropdown && dropdown.classList.contains('open')) {
+      if (!dropdown.contains(event.target)) {
+        dropdown.classList.remove('open');
+      }
+    }
+  });
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => { t.className = 'toast'; }, 4000);
+  }
+
+  init();
+</script>
+  <script src="/lang.js"></script>
+</body>
+</html>

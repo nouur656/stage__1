@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heures Supplémentaires — DP Tanger-Assilah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1B4F8A;
+      --navy-dark: #143D6B;
+      --green: #0D5C2E;
+      --green-light: #17a84f;
+      --gold: #C8992A;
+      --bg: #F0F4F9;
+      --white: #FFFFFF;
+      --text: #1A2340;
+      --muted: #6B7A99;
+      --border: #D1DCF0;
+      --error: #D94040;
+      --radius: 14px;
+      --shadow: 0 8px 32px rgba(27,79,138,0.15);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-image: 
+        radial-gradient(ellipse at 20% 20%, rgba(27,79,138,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(13,92,46,0.06) 0%, transparent 60%);
+    }
+
+    /* ── Header Banner ── */
+    .page-header {
+      text-align: center;
+      margin-bottom: 32px;
+      max-width: 560px;
+      padding: 0 16px;
+    }
+    .page-header .logo-star {
+      font-size: 52px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .page-header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.3;
+    }
+    .page-header h2 {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .badge-programme {
+      display: inline-block;
+      margin-top: 10px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Login Card ── */
+    .login-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 480px;
+      margin: 0 16px;
+      overflow: hidden;
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .tab-btn {
+      padding: 18px 12px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.25s;
+      background: #F5F8FE;
+      color: var(--muted);
+      border-bottom: 3px solid transparent;
+    }
+    .tab-btn.active {
+      background: var(--white);
+      color: var(--navy);
+      border-bottom-color: var(--navy);
+    }
+    .tab-btn:hover:not(.active) {
+      background: #EAF0FA;
+      color: var(--navy);
+    }
+
+    /* ── Form Panels ── */
+    .panel { display: none; padding: 32px; }
+    .panel.active { display: block; }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .panel-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 13px 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      background: #FAFCFF;
+    }
+    input:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(27,79,138,0.12);
+      background: white;
+    }
+    .field { margin-bottom: 18px; }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: all 0.25s;
+      margin-top: 8px;
+    }
+    .btn-login-directeur {
+      background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+      color: white;
+    }
+    .btn-login-directeur:hover {
+      background: linear-gradient(135deg, var(--navy-dark), #0E2D53);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(27,79,138,0.35);
+    }
+    .btn-login-direction {
+      background: linear-gradient(135deg, var(--green), var(--green));
+      color: white;
+    }
+    .btn-login-direction:hover {
+      background: linear-gradient(135deg, #0A4723, #083B1C);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(13,92,46,0.35);
+    }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      margin-top: 12px;
+      background: #FFF0F0;
+      color: var(--error);
+      border: 1px solid rgba(217,64,64,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    .hint-box {
+      background: linear-gradient(135deg, rgba(27,79,138,0.06), rgba(27,79,138,0.02));
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .hint-box strong { color: var(--navy); }
+
+    /* ── Footer ── */
+    .page-footer {
+      margin-top: 24px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <select id="lang-selector" onchange="switchLang(this.value)" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.9); border:1px solid #ccc; color:#333; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; z-index:1000;">
+    <option value="fr">🇫🇷 Français</option>
+    <option value="ar">🇲🇦 العربية</option>
+  </select>
+
+  
+
+  <div class="page-header">
+    <div class="logo-star">🏫</div>
+    <h1>Heures Supplémentaires & Vacations</h1>
+    <h2>Direction Provinciale de l'Éducation Nationale<br>du Préscolaire et des Sports — <strong>Tanger-Assilah</strong></h2>
+    <span class="badge-programme">Développement du Soutien Scolaire et des Activités Parascolaires</span>
+  </div>
+
+  <div class="login-card">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('directeur')" id="tab-directeur">
+        🏫 Directeur d'établissement
+      </button>
+      <button class="tab-btn" onclick="switchTab('direction')" id="tab-direction">
+        🏛️ Direction Provinciale
+      </button>
+    </div>
+
+    <!-- Directeur Panel -->
+    <div class="panel active" id="panel-directeur">
+      <div class="panel-title">Connexion Directeur</div>
+      <div class="panel-sub">Saisissez le code GRESA de votre établissement pour vous connecter.</div>
+
+      <div class="hint-box">
+        <strong>Code GRESA</strong> : code unique de votre établissement (ex. : <strong>T123456789</strong>). Contactez la Direction Provinciale si vous ne le connaissez pas.
+      </div>
+
+      <form id="form-directeur" onsubmit="loginDirecteur(event)">
+        <div class="field">
+          <label for="code-etab">Code de l'établissement (GRESA)</label>
+          <input type="text" id="code-etab" placeholder="Ex. : T123456789" autocomplete="off" required />
+        </div>
+        <div class="field">
+          <label for="pass-etab">Mot de passe</label>
+          <input type="password" id="pass-etab" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn-login btn-login-directeur" id="btn-dir">
+          Se connecter
+        </button>
+        <div class="error-msg" id="err-directeur"></div>
+      </form>
+    </div>
+
+    <!-- Direction Panel -->
+    <div class="panel" id="panel-direction">
+      <div class="panel-title">Connexion Direction Provinciale</div>
+      <div class="panel-sub">Accès réservé à l'administration de la Direction Provinciale Tanger-Assilah.</div>
+
+      <form id="form-direction" onsubmit="loginDirection(event)">
+        <div class="field">
+          <label for="dp-user">Identifiant</label>
+          <input type="text" id="dp-user" placeholder="Identifiant" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="dp-pass">Mot de passe</label>
+          <input type="password" id="dp-pass" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn-login btn-login-direction" id="btn-dp">
+          Se connecter
+        </button>
+        <div class="error-msg" id="err-direction"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="page-footer">Compte 613544 – ART:912 – PARAGRAPHE:33 – LIGNE:21 · Cycles Primaire · Collège · Lycée</div>
+
+  <script>
+    // Check if already logged in
+    fetch('/api/me').then(r => r.json()).then(data => {
+      if (data.role === 'directeur') window.location.href = '/directeur';
+      if (data.role === 'direction') window.location.href = '/direction';
+    }).catch(() => {});
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+    }
+
+    function setLoading(btn, loading) {
+      if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span>Connexion…';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = 'Se connecter';
+      }
+    }
+
+    async function loginDirecteur(e) {
+      e.preventDefault();
+      const code = document.getElementById('code-etab').value.trim();
+      const password = document.getElementById('pass-etab').value;
+      const btn = document.getElementById('btn-dir');
+      const errEl = document.getElementById('err-directeur');
+      errEl.classList.remove('show');
+      setLoading(btn, true);
+
+      try {
+        const res = await fetch('/api/login/directeur', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code_etablissement: code, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.href = '/directeur';
+        } else {
+          errEl.textContent = data.error || 'Erreur de connexion';
+          errEl.classList.add('show');
+        }
+      } catch {
+        errEl.textContent = 'Impossible de joindre le serveur.';
+        errEl.classList.add('show');
+      } finally {
+        setLoading(btn, false);
+      }
+    }
+
+    async function loginDirection(e) {
+      e.preventDefault();
+      const username = document.getElementById('dp-user').value.trim();
+      const password = document.getElementById('dp-pass').value;
+      const btn = document.getElementById('btn-dp');
+      const errEl = document.getElementById('err-direction');
+      errEl.classList.remove('show');
+      setLoading(btn, true);
+
+      try {
+        const res = await fetch('/api/login/direction', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.href = '/direction';
+        } else {
+          errEl.textContent = data.error || 'Identifiants incorrects';
+          errEl.classList.add('show');
+        }
+      } catch {
+        errEl.textContent = 'Impossible de joindre le serveur.';
+        errEl.classList.add('show');
+      } finally {
+        setLoading(btn, false);
+      }
+    }
+  </script>
+  <script src="/lang.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+powershell -Command "(Get-Content 'C:\Program Files\PostgreSQL\17\data\pg_hba.conf') -replace 'scram-sha-256', 'trust' | Set-Content 'C:\Program Files\PostgreSQL\17\data\pg_hba.conf'"
+
+net stop postgresql-x64-17
+
+net start postgresql-x64-17
+
+
+
+powershell -Command "(Get-Content 'C:\Program Files\PostgreSQL\17\data\pg_hba.conf') -replace 'trust', 'scram-sha-256' | Set-Content 'C:\Program Files\PostgreSQL\17\data\pg_hba.conf'"
+
+net stop postgresql-x64-17
+
+net start postgresql-x64-17
